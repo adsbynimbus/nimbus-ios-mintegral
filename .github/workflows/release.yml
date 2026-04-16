@@ -1,0 +1,47 @@
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish_pods:
+    if: ${{ startsWith(github.repository, 'adsbynimbus/nimbus-ios-') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Find Podspec & Set version
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          PODSPEC="$(find . -maxdepth 1 -type f -name "*.podspec" -print -quit)"
+          if [[ -z "$PODSPEC" ]]; then
+            echo "::error::No .podspec found in repo root"
+            exit 1
+          fi
+
+          echo "Using podspec: $PODSPEC"
+          sed -i "s/0\.0\.1-development/${VERSION}/" "$PODSPEC"
+
+          echo "PODSPEC=$PODSPEC" >> "$GITHUB_ENV"
+
+      - name: Set up Ruby 3.0
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0
+          bundle-cache: true
+
+      - name: Install CocoaPods
+        run: gem install cocoapods
+
+      - name: Push to CocoaPods Trunk
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          set -euo pipefail
+          : "${PODSPEC:?PODSPEC is not set; refusing to push}"
+          pod trunk push "$PODSPEC" --allow-warnings
+        
