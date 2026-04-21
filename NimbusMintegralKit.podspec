@@ -16,4 +16,7 @@ Pod::Spec.new do |spec|
         :git => "https://github.com/adsbynimbus/nimbus-ios-mintegral.git", 
         :tag => spec.version.to_s
     }
+
+    spec.dependency 'NimbusSDK/NimbusKit', '~> 3'
+    spec.dependency 'MintegralAdSDK', '>= 7.5.1', '< 8.0.0'
 end

@@ -1,0 +1,37 @@
+# AppCode / VSCode / Xcode 
+.idea/
+.vscode/
+*.xcworkspace
+xcuserdata/
+
+# Build
+.build/
+archives/
+build/
+DerivedData/
+outputs/
+docs/
+combined-symbol-graphs/
+docs-derived-data/
+*.doccarchive
+*.generated.swift
+*.framework
+*.hmap
+*.ipa
+*.xcframework
+*.zip
+
+# CocoaPods
+Podfile.lock
+Pods/
+
+# Swift Package Manager
+Packages/
+Package.resolved
+!package.xcworkspace
+
+# Secrets
+secrets.json
+
+# Windows / MacOS
+.DS_Store
