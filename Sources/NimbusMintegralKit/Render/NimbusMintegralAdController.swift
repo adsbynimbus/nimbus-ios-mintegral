@@ -316,10 +316,6 @@ final class NimbusMintegralAdController: AdController,
         }
     }
     
-    func onVideoPlayCompleted(_ placementId: String?, unitId: String?) {
-        Task { @MainActor in sendNimbusEvent(.completed) }
-    }
-    
     func onVideoEndCardShowSuccess(_ placementId: String?, unitId: String?) {
         Task { @MainActor in sendNimbusEvent(.endCardImpression) }
     }
@@ -330,7 +326,10 @@ final class NimbusMintegralAdController: AdController,
         withConverted converted: Bool,
         withRewardInfo rewardInfo: MTGRewardAdInfo?
     ) {
-        Task { @MainActor in destroy() }
+        Task { @MainActor in
+            sendNimbusEvent(converted ? .rewardEarned : .skipped)
+            destroy()
+        }
     }
 }
 
