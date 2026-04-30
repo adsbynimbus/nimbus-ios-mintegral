@@ -44,4 +44,7 @@ jobs:
           set -euo pipefail
           : "${PODSPEC:?PODSPEC is not set; refusing to push}"
           pod trunk push "$PODSPEC" --allow-warnings
-        
+
+  refresh-collection:
+    uses: adsbynimbus/nimbus-ios/.github/workflows/refresh_collection.yml@main
+    secrets: inherit          
