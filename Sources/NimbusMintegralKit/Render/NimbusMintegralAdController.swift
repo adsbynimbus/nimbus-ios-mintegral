@@ -125,7 +125,7 @@ final class NimbusMintegralAdController: AdController,
             adView.addSubview(bannerAd)
         } else if let nativeAdManager, let campaign {
             guard let nativeAdViewProvider = MintegralExtension.nativeAdViewProvider else {
-                sendNimbusError(.mintegral(reason: .misconfiguration, stage: .render, detail: "MintegralExtension.nativeAdViewProvider must be set to render native ads"))
+                sendNimbusError(.mintegral(reason: .configuration, stage: .render, detail: "MintegralExtension.nativeAdViewProvider must be set to render native ads"))
                 return
             }
             
