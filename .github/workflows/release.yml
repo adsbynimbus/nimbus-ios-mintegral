@@ -46,5 +46,6 @@ jobs:
           pod trunk push "$PODSPEC" --allow-warnings
 
   refresh-collection:
+    if: ${{ startsWith(github.repository, 'adsbynimbus/nimbus-ios-') }}
     uses: adsbynimbus/nimbus-ios/.github/workflows/refresh_collection.yml@main
     secrets: inherit          
