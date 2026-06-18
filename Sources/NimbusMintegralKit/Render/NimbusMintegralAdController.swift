@@ -16,13 +16,15 @@ import MTGSDKReward
 /// Mintegral mute state must be set before the ad is loaded.
 /// That is why the volume property has no didSet hooks and only
 /// considers the state of the property in load() method.
+///
+/// Internal: Do NOT implement delegate conformance as separate extensions as the methods will not be found in runtime when built as a static library
 final class NimbusMintegralAdController: AdController,
-                                         @preconcurrency MTGBannerAdViewDelegate,
-                                         @preconcurrency MTGBidNativeAdManagerDelegate,
-                                         @preconcurrency MTGMediaViewDelegate,
-                                         @preconcurrency MTGNewInterstitialBidAdDelegate,
-                                         @preconcurrency MTGRewardAdLoadDelegate,
-                                         @preconcurrency MTGRewardAdShowDelegate {
+                                         @MainActor MTGBannerAdViewDelegate,
+                                         @MainActor MTGBidNativeAdManagerDelegate,
+                                         @MainActor MTGMediaViewDelegate,
+                                         @MainActor MTGNewInterstitialBidAdDelegate,
+                                         @MainActor MTGRewardAdLoadDelegate,
+                                         @MainActor MTGRewardAdShowDelegate {
     
     // MARK: - Properties
     
@@ -332,5 +334,3 @@ final class NimbusMintegralAdController: AdController,
         }
     }
 }
-
-// Internal: Do NOT implement delegate conformance as separate extensions as the methods won't not be found in runtime when built as a static library
