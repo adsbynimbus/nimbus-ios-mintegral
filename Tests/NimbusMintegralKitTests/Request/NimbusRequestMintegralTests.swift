@@ -20,7 +20,7 @@ import Testing
     
     @Test("request gets modified")
     func requestGetsModified() async throws {
-        let ad = try await Nimbus.bannerAd(position: "banner", size: .banner)
+        let ad = await Nimbus.bannerAd(position: "banner", size: .banner)
         let info = try await NimbusRequest(from: ad.adRequest!.request)
         let deltas = try await interceptor.modifyRequest(request: info)
         
