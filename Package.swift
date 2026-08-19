@@ -11,7 +11,7 @@ var package = Package(
            targets: ["NimbusMintegralKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Mintegral-official/MintegralAdSDK-Swift-Package", from: "7.6.7")
+        .package(url: "https://github.com/Mintegral-official/MintegralAdSDK-Swift-Package", from: "8.0.0")
     ],
     targets: [
         .target(
