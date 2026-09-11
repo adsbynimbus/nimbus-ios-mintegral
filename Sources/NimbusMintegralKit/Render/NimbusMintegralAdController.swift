@@ -65,7 +65,6 @@ final class NimbusMintegralAdController: AdController,
         return adController
     }
     
-    @MainActor
     override func load() {
         guard let adUnitId = response.bid.ext?.omp?.buyerPlacementId else {
             sendNimbusError(.mintegral(reason: .invalidState, stage: .render, detail: "Ad unit id is missing"))
@@ -113,7 +112,6 @@ final class NimbusMintegralAdController: AdController,
         }
     }
     
-    @MainActor
     func presentIfNeeded(campaign: MTGCampaign? = nil) {
         guard started, adState == .ready else { return }
         guard let adUnitId = response.bid.ext?.omp?.buyerPlacementId else {
@@ -166,9 +164,7 @@ final class NimbusMintegralAdController: AdController,
     }
     
     override func onStart() {
-        Task { @MainActor in
-            presentIfNeeded()
-        }
+        presentIfNeeded()
     }
     
     override func onDestroy() {
@@ -179,29 +175,25 @@ final class NimbusMintegralAdController: AdController,
     // MARK: - Banner Delegate
     
     func adViewLoadSuccess(_ adView: MTGBannerAdView!) {
-        Task { @MainActor in
-            adState = .ready
-            sendNimbusEvent(.loaded)
-            presentIfNeeded()
-        }
+        adState = .ready
+        sendNimbusEvent(.loaded)
+        presentIfNeeded()
     }
     
     func adViewWillLogImpression(_ adView: MTGBannerAdView!) {
-        Task { @MainActor in sendNimbusEvent(.impression) }
+        sendNimbusEvent(.impression)
     }
     
     func adViewDidClicked(_ adView: MTGBannerAdView!) {
-        Task { @MainActor in sendNimbusEvent(.clicked) }
+        sendNimbusEvent(.clicked)
     }
     
     func adViewClosed(_ adView: MTGBannerAdView!) {
-        Task { @MainActor in destroy() }
+        destroy()
     }
     
     func adViewLoadFailedWithError(_ error: (any Error)!, adView: MTGBannerAdView!) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func adViewWillLeaveApplication(_ adView: MTGBannerAdView!) {}
@@ -211,115 +203,99 @@ final class NimbusMintegralAdController: AdController,
     // MARK: - Native Delegate
     
     func nativeAdsLoaded(_ nativeAds: [Any]?, bidNativeManager: MTGBidNativeAdManager) {
-        Task { @MainActor in
-            guard let campaign = nativeAds?.first as? MTGCampaign else {
-                sendNimbusError(.mintegral(
-                    reason: .invalidState,
-                    stage: .render,
-                    detail: "MTGCampaign not found in native ad")
-                )
-                return
-            }
-            
-            sendNimbusEvent(.loaded)
-            
-            adState = .ready
-            presentIfNeeded(campaign: campaign)
+        guard let campaign = nativeAds?.first as? MTGCampaign else {
+            sendNimbusError(.mintegral(
+                reason: .invalidState,
+                stage: .render,
+                detail: "MTGCampaign not found in native ad")
+            )
+            return
         }
+        
+        sendNimbusEvent(.loaded)
+        
+        adState = .ready
+        presentIfNeeded(campaign: campaign)
     }
     
     func nativeAdsFailedToLoadWithError(_ error: any Error, bidNativeManager: MTGBidNativeAdManager) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func nativeAdImpression(with type: MTGAdSourceType, bidNativeManager: MTGBidNativeAdManager) {
-        Task { @MainActor in sendNimbusEvent(.impression) }
+        sendNimbusEvent(.impression)
     }
     
     func nativeAdDidClick(_ nativeAd: MTGCampaign, bidNativeManager: MTGBidNativeAdManager) {
-        Task { @MainActor in sendNimbusEvent(.clicked) }
+        sendNimbusEvent(.clicked)
     }
     
     func nativeAdImpression(with type: MTGAdSourceType, mediaView: MTGMediaView) {
-        Task { @MainActor in sendNimbusEvent(.impression) }
+        sendNimbusEvent(.impression)
     }
     
     func nativeAdDidClick(_ nativeAd: MTGCampaign) {
-        Task { @MainActor in sendNimbusEvent(.clicked) }
+        sendNimbusEvent(.clicked)
     }
     
     // MARK: - Interstitial Delegate
     
     func newInterstitialBidAdResourceLoadSuccess(_ adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in
-            adState = .ready
-            sendNimbusEvent(.loaded)
-            presentIfNeeded()
-        }
+        adState = .ready
+        sendNimbusEvent(.loaded)
+        presentIfNeeded()
     }
     
     func newInterstitialBidAdShowSuccess(withBidToken bidToken: String, adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in sendNimbusEvent(.impression) }
+        sendNimbusEvent(.impression)
     }
     
     func newInterstitialBidAdClicked(_ adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in sendNimbusEvent(.clicked) }
+        sendNimbusEvent(.clicked)
     }
     
     func newInterstitialBidAdLoadFail(_ error: any Error, adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func newInterstitialBidAdShowFail(_ error: any Error, adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func newInterstitialBidAdDismissed(withConverted converted: Bool, adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in destroy() }
+        destroy()
     }
     
     func newInterstitialBidAdEndCardShowSuccess(_ adManager: MTGNewInterstitialBidAdManager) {
-        Task { @MainActor in sendNimbusEvent(.endCardImpression) }
+        sendNimbusEvent(.endCardImpression)
     }
     
     // MARK: - Rewarded Delegate
     
     func onVideoAdLoadSuccess(_ placementId: String?, unitId: String?) {
-        Task { @MainActor in
-            adState = .ready
-            sendNimbusEvent(.loaded)
-            presentIfNeeded()
-        }
+        adState = .ready
+        sendNimbusEvent(.loaded)
+        presentIfNeeded()
     }
     
     func onVideoAdShowSuccess(_ placementId: String?, unitId: String?) {
-        Task { @MainActor in sendNimbusEvent(.impression) }
+        sendNimbusEvent(.impression)
     }
     
     func onVideoAdClicked(_ placementId: String?, unitId: String?) {
-        Task { @MainActor in sendNimbusEvent(.clicked) }
+        sendNimbusEvent(.clicked)
     }
     
     func onVideoAdLoadFailed(_ placementId: String?, unitId: String?, error: any Error) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func onVideoAdShowFailed(_ placementId: String?, unitId: String?, withError error: any Error) {
-        Task { @MainActor in
-            sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
-        }
+        sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
     }
     
     func onVideoEndCardShowSuccess(_ placementId: String?, unitId: String?) {
-        Task { @MainActor in sendNimbusEvent(.endCardImpression) }
+        sendNimbusEvent(.endCardImpression)
     }
     
     func onVideoAdDismissed(
@@ -328,9 +304,7 @@ final class NimbusMintegralAdController: AdController,
         withConverted converted: Bool,
         withRewardInfo rewardInfo: MTGRewardAdInfo?
     ) {
-        Task { @MainActor in
-            sendNimbusEvent(converted ? .rewardEarned : .skipped)
-            destroy()
-        }
+        sendNimbusEvent(converted ? .rewardEarned : .skipped)
+        destroy()
     }
 }

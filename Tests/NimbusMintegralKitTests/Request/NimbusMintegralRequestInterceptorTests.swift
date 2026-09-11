@@ -44,7 +44,7 @@ struct NimbusMintegralRequestInterceptorTests {
     @Test
     @MainActor
     func mintegralTokenDataGetsInsertedIntoRequest() async throws {
-        let ad = try Nimbus.rewardedAd(position: "position")
+        let ad = Nimbus.rewardedAd(position: "position")
         ad.adRequest!.request.interceptors = [interceptor]
         
         try await ad.adRequest!.request.modifyRequestWithExtras(

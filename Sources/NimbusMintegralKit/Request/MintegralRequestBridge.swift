@@ -13,17 +13,17 @@ protocol MintegralRequestBridgeType: Sendable {
 }
 
 final class MintegralRequestBridge: MintegralRequestBridgeType {
-    public init() {}
+    init() {}
     
     // Mintegral singleton should only be accessed from the main thread as their documentation recommends.
     @inlinable
     @MainActor
-    public static func set(coppa: Bool) {
+    static func set(coppa: Bool) {
         MTGSDK.sharedInstance().coppa = coppa ? .yes : .no
     }
     
     // Mintegral singleton should only be accessed from the main thread as their documentation recommends.
-    @MainActor public var tokenData: [String: String] {
+    @MainActor var tokenData: [String: String] {
         [
             "buyeruid": MTGBiddingSDK.buyerUID(),
             "sdkv": MTGSDK.sdkVersion()
