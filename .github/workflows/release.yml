@@ -56,7 +56,7 @@ jobs:
         with:
           client-id: ${{ secrets.NIMBUS_DISPATCH_APP_CLIENT_ID }}
           private-key: ${{ secrets.NIMBUS_DISPATCH_APP_KEY }}
-          owner: adsbynimbus
+          owner: ${{ github.repository_owner }}
           repositories: nimbus-ios
 
       - name: Refresh Collection
