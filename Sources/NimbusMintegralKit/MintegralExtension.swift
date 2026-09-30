@@ -50,8 +50,13 @@ public struct MintegralExtension: NimbusRequestExtension, NimbusRenderExtension 
             return
         }
         
-        MTGSDK.sharedInstance().setAppID(appId, apiKey: appKey)
-        Nimbus.Log.lifecycle.debug("Mintegral SDK initalization completed")
+        MTGSDK.sharedInstance().initialize(withAppID: appId, apiKey: appKey) { _, error in
+            if let error {
+                Nimbus.Log.lifecycle.debug("Mintegral SDK initalization failed with: \(error.localizedDescription)")
+            } else {
+                Nimbus.Log.lifecycle.debug("Mintegral SDK initalization completed")
+            }
+        }
     }
     
     @_documentation(visibility: internal)
