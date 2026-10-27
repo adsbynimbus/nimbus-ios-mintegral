@@ -26,6 +26,11 @@ var package = Package(
             dependencies: ["NimbusMintegralKit"],
             swiftSettings: [
                 .swiftLanguageMode(.v5)
+            ],
+            linkerSettings: [
+                // MTGSDK is a static library whose UIKit helpers live in ObjC categories;
+                // without -ObjC the linker strips them and the SDK's views crash on init.
+                .unsafeFlags(["-ObjC"])
             ]
         ),
     ]

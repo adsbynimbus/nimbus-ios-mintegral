@@ -29,9 +29,14 @@ final class NimbusMintegralAdController: AdController,
     // MARK: - Properties
     
     // MARK: - Mintegral ad types
-    private var bannerAd: MTGBannerAdView?
-    private var interstitialAdManager: MTGNewInterstitialBidAdManager?
-    private var nativeAdManager: MTGBidNativeAdManager?
+    var bannerAd: MTGBannerAdView?
+    var interstitialAdManager: MTGNewInterstitialBidAdManager?
+    var nativeAdManager: MTGBidNativeAdManager?
+    /// Kept so a native ad that loads before start() can still be rendered once started.
+    var nativeCampaign: MTGCampaign?
+    
+    /// Mintegral rewarded ads go through a singleton; exposed so tests can inject a mock.
+    var rewardAdManager: MTGBidRewardAdManager = .sharedInstance()
     
     override class func setup(
         response: NimbusResponse,
@@ -72,36 +77,15 @@ final class NimbusMintegralAdController: AdController,
         }
         
         switch adRenderType {
-        case .banner:            
-            bannerAd = MTGBannerAdView(
-                bannerAdViewWithAdSize: response.bid.size,
-                placementId: nil,
-                unitId: adUnitId,
-                rootViewController: adPresentingViewController
-            )
-            bannerAd?.delegate = self
-            bannerAd?.viewController = adPresentingViewController
-            bannerAd?.loadBannerAd(withBidToken: response.bid.adm)
+        case .banner:
+            buildBannerAd(adUnitId: adUnitId).loadBannerAd(withBidToken: response.bid.adm)
         case .native:
-            nativeAdManager = MTGBidNativeAdManager(
-                placementId: nil,
-                unitID: adUnitId,
-                presenting: adPresentingViewController
-            )
-            nativeAdManager?.delegate = self
-            nativeAdManager?.load(withBidToken: response.bid.adm)
-            
+            buildNativeAdManager(adUnitId: adUnitId).load(withBidToken: response.bid.adm)
         case .interstitial:
-            interstitialAdManager = MTGNewInterstitialBidAdManager(
-                placementId: "",
-                unitId: adUnitId,
-                delegate: self
-            )
-            interstitialAdManager?.playVideoMute = volume <= 0
-            interstitialAdManager?.loadAd(withBidToken: response.bid.adm)
+            buildInterstitialAdManager(adUnitId: adUnitId).loadAd(withBidToken: response.bid.adm)
         case .rewarded:
-            MTGBidRewardAdManager.sharedInstance().playVideoMute = volume <= 0
-            MTGBidRewardAdManager.sharedInstance().loadVideo(
+            rewardAdManager.playVideoMute = volume <= 0
+            rewardAdManager.loadVideo(
                 withBidToken: response.bid.adm,
                 placementId: nil,
                 unitId: adUnitId,
@@ -112,7 +96,47 @@ final class NimbusMintegralAdController: AdController,
         }
     }
     
-    func presentIfNeeded(campaign: MTGCampaign? = nil) {
+    // MARK: - Builders (create the Mintegral object and wire its delegate, without loading)
+    
+    @discardableResult
+    func buildBannerAd(adUnitId: String) -> MTGBannerAdView {
+        let bannerAd = MTGBannerAdView(
+            bannerAdViewWithAdSize: response.bid.size,
+            placementId: nil,
+            unitId: adUnitId,
+            rootViewController: adPresentingViewController
+        )
+        bannerAd.delegate = self
+        bannerAd.viewController = adPresentingViewController
+        self.bannerAd = bannerAd
+        return bannerAd
+    }
+    
+    @discardableResult
+    func buildNativeAdManager(adUnitId: String) -> MTGBidNativeAdManager {
+        let nativeAdManager = MTGBidNativeAdManager(
+            placementId: nil,
+            unitID: adUnitId,
+            presenting: adPresentingViewController
+        )
+        nativeAdManager.delegate = self
+        self.nativeAdManager = nativeAdManager
+        return nativeAdManager
+    }
+    
+    @discardableResult
+    func buildInterstitialAdManager(adUnitId: String) -> MTGNewInterstitialBidAdManager {
+        let interstitialAdManager = MTGNewInterstitialBidAdManager(
+            placementId: "",
+            unitId: adUnitId,
+            delegate: self
+        )
+        interstitialAdManager.playVideoMute = volume <= 0
+        self.interstitialAdManager = interstitialAdManager
+        return interstitialAdManager
+    }
+    
+    func presentIfNeeded() {
         guard started, adState == .ready else { return }
         guard let adUnitId = response.bid.ext?.omp?.buyerPlacementId else {
             sendNimbusError(.mintegral(reason: .invalidState, stage: .render, detail: "Ad unit id is missing"))
@@ -123,7 +147,7 @@ final class NimbusMintegralAdController: AdController,
         
         if let bannerAd {
             adView.addSubview(bannerAd)
-        } else if let nativeAdManager, let campaign {
+        } else if let nativeAdManager, let campaign = nativeCampaign {
             guard let nativeAdViewProvider = MintegralExtension.nativeAdViewProvider else {
                 sendNimbusError(.mintegral(reason: .configuration, stage: .render, detail: "MintegralExtension.nativeAdViewProvider must be set to render native ads"))
                 return
@@ -151,7 +175,7 @@ final class NimbusMintegralAdController: AdController,
         } else if let interstitialAdManager, let adPresentingViewController {
             interstitialAdManager.show(from: adPresentingViewController)
         } else if case .rewarded = adRenderType, let adPresentingViewController {
-            MTGBidRewardAdManager.sharedInstance().showVideo(
+            rewardAdManager.showVideo(
                 withPlacementId: nil,
                 unitId: adUnitId,
                 userId: nil,
@@ -170,6 +194,7 @@ final class NimbusMintegralAdController: AdController,
     override func onDestroy() {
         bannerAd = nil
         interstitialAdManager = nil
+        nativeCampaign = nil
     }
     
     // MARK: - Banner Delegate
@@ -212,10 +237,11 @@ final class NimbusMintegralAdController: AdController,
             return
         }
         
+        nativeCampaign = campaign
         sendNimbusEvent(.loaded)
         
         adState = .ready
-        presentIfNeeded(campaign: campaign)
+        presentIfNeeded()
     }
     
     func nativeAdsFailedToLoadWithError(_ error: any Error, bidNativeManager: MTGBidNativeAdManager) {
@@ -266,6 +292,10 @@ final class NimbusMintegralAdController: AdController,
         destroy()
     }
     
+    func newInterstitialBidAdPlayCompleted(_ adManager: MTGNewInterstitialBidAdManager) {
+        sendNimbusEvent(.completed)
+    }
+    
     func newInterstitialBidAdEndCardShowSuccess(_ adManager: MTGNewInterstitialBidAdManager) {
         sendNimbusEvent(.endCardImpression)
     }
@@ -292,6 +322,10 @@ final class NimbusMintegralAdController: AdController,
     
     func onVideoAdShowFailed(_ placementId: String?, unitId: String?, withError error: any Error) {
         sendNimbusError(.mintegral(stage: .render, detail: error.localizedDescription))
+    }
+    
+    func onVideoPlayCompleted(_ placementId: String?, unitId: String?) {
+        sendNimbusEvent(.completed)
     }
     
     func onVideoEndCardShowSuccess(_ placementId: String?, unitId: String?) {
