@@ -1,6 +1,6 @@
 //
-//  NimbusRequestMintegralTests.swift
-//  Nimbus
+//  MintegralRequestExtensionTests.swift
+//  NimbusMintegralKitTests
 //  Created on 11/12/24
 //  Copyright © 2024 Nimbus Advertising Solutions Inc. All rights reserved.
 //
@@ -9,9 +9,10 @@
 @testable import NimbusKit
 import Testing
 
-@Suite("Mintegral NimbusRequest extension") struct MintegralRequestExtensionTests {
+@Suite("Mintegral NimbusRequest extension")
+struct MintegralRequestExtensionTests {
     
-    let interceptor = NimbusMintegralRequestInterceptor(
+    let interceptor = MintegralRequestInterceptor(
         bridge: MockRequestBridge([
             "buyeruid": "abcd1234",
             "sdkv": "7.8.0"

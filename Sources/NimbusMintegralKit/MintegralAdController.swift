@@ -1,5 +1,5 @@
 //
-//  NimbusMintegralAdController.swift
+//  MintegralAdController.swift
 //  Nimbus
 //  Created on 10/30/24
 //  Copyright © 2024 Nimbus Advertising Solutions Inc. All rights reserved.
@@ -18,13 +18,13 @@ import MTGSDKReward
 /// considers the state of the property in load() method.
 ///
 /// Internal: Do NOT implement delegate conformance as separate extensions as the methods will not be found in runtime when built as a static library
-final class NimbusMintegralAdController: AdController,
-                                         @MainActor MTGBannerAdViewDelegate,
-                                         @MainActor MTGBidNativeAdManagerDelegate,
-                                         @MainActor MTGMediaViewDelegate,
-                                         @MainActor MTGNewInterstitialBidAdDelegate,
-                                         @MainActor MTGRewardAdLoadDelegate,
-                                         @MainActor MTGRewardAdShowDelegate {
+final class MintegralAdController: AdController,
+                                   @MainActor MTGBannerAdViewDelegate,
+                                   @MainActor MTGBidNativeAdManagerDelegate,
+                                   @MainActor MTGMediaViewDelegate,
+                                   @MainActor MTGNewInterstitialBidAdDelegate,
+                                   @MainActor MTGRewardAdLoadDelegate,
+                                   @MainActor MTGRewardAdShowDelegate {
     
     // MARK: - Properties
     

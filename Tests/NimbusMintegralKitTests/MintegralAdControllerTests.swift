@@ -372,7 +372,7 @@ struct NimbusMintegralAdControllerTests {
 
     enum Format { case banner, native, interstitial, rewarded }
     
-    private func makeAdController(_ format: Format) -> (NimbusMintegralAdController, MockDelegate) {
+    private func makeAdController(_ format: Format) -> (MintegralAdController, MockDelegate) {
         let response: NimbusResponse = switch format {
         case .banner, .interstitial:
             .init(id: "", bid: .init(mtype: .static, adm: bidToken, price: 0, ext: .init(omp: .init(buyer: "mintegral", buyerPlacementId: unitId))))
@@ -382,7 +382,7 @@ struct NimbusMintegralAdControllerTests {
             .init(id: "", bid: .init(mtype: .video, adm: bidToken, price: 0, ext: .init(omp: .init(buyer: "mintegral", buyerPlacementId: unitId))))
         }
         
-        let adController = NimbusMintegralAdController(
+        let adController = MintegralAdController(
             response: response,
             isBlocking: format == .interstitial || format == .rewarded,
             isRewarded: format == .rewarded,

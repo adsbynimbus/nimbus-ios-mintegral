@@ -29,7 +29,7 @@ public struct MintegralExtension: NimbusRequestExtension, NimbusRenderExtension 
     public var network: String { "mintegral" }
     
     @_documentation(visibility: internal)
-    public var controllerType: AdController.Type { NimbusMintegralAdController.self }
+    public var controllerType: AdController.Type { MintegralAdController.self }
     
     /// Creates a Mintegral extension.
     ///
@@ -43,7 +43,7 @@ public struct MintegralExtension: NimbusRequestExtension, NimbusRenderExtension 
     /// }
     /// ```
     public init(appId: String? = nil, appKey: String? = nil) {
-        interceptor = NimbusMintegralRequestInterceptor()
+        interceptor = MintegralRequestInterceptor()
         
         guard let appId, let appKey else {
             Nimbus.Log.lifecycle.debug("Skipping Mintegral SDK initialization, appId or apiKey was not provided")

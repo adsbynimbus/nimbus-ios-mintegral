@@ -1,5 +1,5 @@
 //
-//  NimbusMintegralRequestInterceptorTests.swift
+//  MintegralRequestInterceptorTests.swift
 //  Nimbus
 //  Created on 11/12/24
 //  Copyright © 2024 Nimbus Advertising Solutions Inc. All rights reserved.
@@ -12,10 +12,10 @@ import MTGSDK
 import Testing
 
 @Suite("Mintegral request interceptor tests")
-struct NimbusMintegralRequestInterceptorTests {
+struct MintegralRequestInterceptorTests {
     
     let bridge: MockRequestBridge
-    let interceptor: NimbusMintegralRequestInterceptor
+    let interceptor: MintegralRequestInterceptor
     
     init() {
         self.bridge = MockRequestBridge([
@@ -23,7 +23,7 @@ struct NimbusMintegralRequestInterceptorTests {
             "sdkv": "7.8.0"
         ])
         
-        self.interceptor = NimbusMintegralRequestInterceptor(bridge: bridge)
+        self.interceptor = MintegralRequestInterceptor(bridge: bridge)
     }
     
     @Test func mintegralTokenDataIsReturned() async throws {

@@ -1,5 +1,5 @@
 //
-//  NimbusMintegralRequestInterceptor.swift
+//  MintegralRequestInterceptor.swift
 //  Nimbus
 //  Created on 10/30/24
 //  Copyright © 2024 Nimbus Advertising Solutions Inc. All rights reserved.
@@ -10,7 +10,7 @@ import NimbusKit
 import MTGSDK
 import MTGSDKBidding
 
-final class NimbusMintegralRequestInterceptor {
+final class MintegralRequestInterceptor {
     private let bridge: MintegralRequestBridgeType
     
     init(bridge: MintegralRequestBridgeType = MintegralRequestBridge()) {
@@ -18,7 +18,7 @@ final class NimbusMintegralRequestInterceptor {
     }
 }
 
-extension NimbusMintegralRequestInterceptor: NimbusRequest.Interceptor {
+extension MintegralRequestInterceptor: NimbusRequest.Interceptor {
     func modifyRequest(request: NimbusRequest) async throws -> [NimbusRequest.Delta] {
         let data = await bridge.tokenData
         
