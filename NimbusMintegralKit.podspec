@@ -18,5 +18,5 @@ Pod::Spec.new do |spec|
     }
 
     spec.dependency 'NimbusSDK/NimbusKit', '~> 3'
-    spec.dependency 'MintegralAdSDK', '>= 7.5.1', '< 8.0.0'
+    spec.dependency 'MintegralAdSDK', '~> 8'
 end
