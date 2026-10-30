@@ -74,7 +74,7 @@ That's it — Mintegral is now enabled in all upcoming requests.
 
 ## Documentation
 
-- [Nimbus iOS SDK Documentation](https://docs.adsbynimbus.com/docs/sdk/ios) — integration guides, configuration, and API reference.
+- [Nimbus iOS SDK Documentation](https://docs.adsbynimbus.com/docs) — integration guides, configuration, and API reference.
 - [DocC API Reference](https://iosdocs.adsbynimbus.com) — auto-generated documentation for the latest release.
 
 ## Sample App
